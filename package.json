@@ -60,7 +60,8 @@
     "seed:recruit": "node --env-file=.env tools/seed-recruit.mjs",
     "check:seeds": "node tools/tests/seed-dry.mjs",
     "check:css": "node tools/check-css.mjs",
-    "check:nav": "node tools/check-nav.mjs"
+    "check:nav": "node tools/check-nav.mjs",
+    "probe:clone": "node --env-file=.env tools/clone-probe.mjs"
   },
   "dependencies": {
     "nodemailer": "^9.0.5",
