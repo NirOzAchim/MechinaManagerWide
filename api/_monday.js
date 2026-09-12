@@ -16,7 +16,30 @@ const ENDPOINT = "https://api.monday.com/v2";
    ============================================================ */
 const TRANSIENT = /INTERNAL_SERVER_ERROR|DOWNSTREAM_SERVICE_ERROR|Internal server error|ComplexityException|RATE_LIMIT|Too many requests|502|503|504/i;
 
+/* ============================================================
+   מצב הדגמה — המחסן מוחלף, הקוד לא
+   ------------------------------------------------------------
+   ⚠⚠ **שני תנאים, ולא אחד**: `KX_DATA=local` **וגם** היעדר
+     `process.env.VERCEL`. דגל שנשכח דלוק בהגדרות Vercel היה
+     מגיש למכינה מסך מלא בנתוני דמה שנראים אמיתיים — גרוע
+     מכל שגיאה. אותה משמעת של `?date=` ב-api/_test-date.js.
+
+   ⚠ **ובלי הדגל שום דבר לא משתנה.** בלי טוקן ובלי KX_DATA
+     נכשלים בדיוק כמו קודם, באותה הודעה.
+
+   ⚠ ייבוא **עצל וממוטמע**: בייצור המודול אינו נטען כלל.
+
+   ⚠ **`allItems` אינו מגושר כאן** — הוא קורא ל-`gql` שלמעלה,
+     ולכן הוא מקבל את ההדגמה מעצמו. גישור נפרד היה מסלול שני
+     שיכול לסטות.
+   ============================================================ */
+let demoMod;
+const demo = () => (demoMod = demoMod || import("./_demo-store.js"));
+const demoOn = () => process.env.KX_DATA === "local" && !process.env.VERCEL;
+
 export async function gql(query, variables = {}) {
+  if (demoOn()) return (await demo()).gql(query, variables);
+
   const token = process.env.MONDAY_TOKEN;
   if (!token) throw new Error("MONDAY_TOKEN לא מוגדר בסביבה");
 
@@ -78,6 +101,10 @@ export async function gql(query, variables = {}) {
  *   ה-GraphQL הרגיל. הקובץ מגיע כ-Buffer אחרי פענוח base64.
  */
 export async function uploadFile(itemId, columnId, fileName, buffer, mime = "application/octet-stream") {
+  /* ⚠ נקודת קצה נפרדת של monday ולא GraphQL, ולכן היא **כן**
+     צריכה גישור משלה — בניגוד ל-allItems. */
+  if (demoOn()) return (await demo()).uploadFile(itemId, columnId, fileName);
+
   const token = process.env.MONDAY_TOKEN;
   if (!token) throw new Error("MONDAY_TOKEN לא מוגדר בסביבה");
 

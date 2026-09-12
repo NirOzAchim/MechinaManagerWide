@@ -61,7 +61,10 @@
     "check:seeds": "node tools/tests/seed-dry.mjs",
     "check:css": "node tools/check-css.mjs",
     "check:nav": "node tools/check-nav.mjs",
-    "probe:clone": "node --env-file=.env tools/clone-probe.mjs"
+    "probe:clone": "node --env-file=.env tools/clone-probe.mjs",
+    "demo": "node tools/demo.mjs",
+    "demo:seed": "node tools/demo-seed.mjs",
+    "check:demo": "node tools/check-demo.mjs"
   },
   "dependencies": {
     "nodemailer": "^9.0.5",
